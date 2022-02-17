@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -38,14 +39,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun showNotification() {
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            notificationManager.createNotificationChannel(
-                NotificationChannel(
-                    "id123", "channel",
-                    NotificationManager.IMPORTANCE_HIGH
-                )
+        notificationManager.createNotificationChannel(
+            NotificationChannel(
+                "id123", "channel",
+                NotificationManager.IMPORTANCE_HIGH
             )
-        }
+        )
 
         val builder = NotificationCompat.Builder(this, "id123")
             .setContentTitle("Hello from me")
@@ -65,7 +64,6 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         if (!NotificationManagerCompat.getEnabledListenerPackages(this).contains(packageName)) {
             binding.linearLayout.visibility = View.VISIBLE
-
         } else {
             binding.linearLayout.visibility = View.GONE
         }
@@ -83,16 +81,14 @@ class MainActivity : AppCompatActivity() {
         } else {
             binding.linearLayout.visibility = View.GONE
         }
-        binding.showNotification.setOnClickListener {
-            PendingIntent.getActivity(this,1,Intent(this,MainActivity::class.java),0)
-                .send()
-        }
+
         database.dao().getAll()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
 
             .subscribe({
-                Log.d(TAG, "onCreate: $it")
+                binding.listView.adapter = ArrayAdapter(this,android.R.layout.simple_list_item_1,it.map {
+                    it.packageName+" " + it.content })
             }, {
                 it.printStackTrace()
             })

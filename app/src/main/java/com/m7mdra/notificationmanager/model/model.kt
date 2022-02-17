@@ -1,11 +1,14 @@
 package com.m7mdra.notificationmanager.model
 
 import android.service.notification.StatusBarNotification
+import android.util.Log
 
 fun StatusBarNotification.model(): PostedNotification {
     val notification = this.notification
-    notification.`when`
     val extras = notification.extras
+    extras.keySet().forEach {
+        Log.d("MEGA", "model:$it:${extras[it]} ")
+    }
     return PostedNotification(
         key = key, packageName = this.packageName,
         active = true,
